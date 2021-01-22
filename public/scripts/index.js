@@ -128,6 +128,8 @@ peerConnection.ontrack = function({ streams: [stream] }) {
   }
 };
 
+let recorder;
+
 navigator.getUserMedia(
   { video: true, audio: true },
   stream => {
@@ -137,8 +139,25 @@ navigator.getUserMedia(
     }
 
     stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+
+    recorder = RecordRTC(stream, {
+      type: 'video'
+    });
+
   },
   error => {
     console.warn(error.message);
   }
 );
+
+
+function startRecording() {
+  recorder.startRecording();
+}
+
+function stopRecording() {
+  recorder.stopRecording(function() {
+    let blob = recorder.getBlob();
+    invokeSaveAsDialog(blob);
+  });
+}
